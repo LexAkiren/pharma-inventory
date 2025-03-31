@@ -1,63 +1,116 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function CartPage({ cart, setCart, updateCartQty, removeFromCart, checkout }) {
   const navigate = useNavigate();
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [receiptData, setReceiptData] = useState(null);
 
-  const total = cart.reduce((sum, item) => {
-    const price = parseFloat(item.price);
-    const subtotal = price * item.quantity;
-    return sum + (isNaN(subtotal) ? 0 : subtotal);
-  }, 0);
+  const handleCheckout = () => {
+    const orderNo = Math.floor(100000 + Math.random() * 900000);
+    const receipt = {
+      orderNo,
+      items: cart.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        price: parseFloat(item.price),
+        total: item.quantity * parseFloat(item.price)
+      })),
+      total: cart.reduce((sum, item) => sum + item.quantity * parseFloat(item.price), 0)
+    };
+
+    // Call the original backend update logic
+    checkout();
+
+    // Store receipt data
+    setReceiptData(receipt);
+    setShowReceipt(true);
+  };
 
   return (
     <div style={{ padding: '2rem' }}>
       <button onClick={() => navigate('/')}>← Back to Inventory</button>
       <h2>Your Cart</h2>
 
-      {cart.length === 0 ? (
-        <p>No items in cart.</p>
+      {!showReceipt ? (
+        cart.length === 0 ? (
+          <p>No items in cart.</p>
+        ) : (
+          <>
+            <table style={{ width: '100%', marginTop: '1rem' }}>
+              <thead>
+                <tr>
+                  <th>Drug</th>
+                  <th>Qty</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cart.map(item => (
+                  <tr key={`${item.id}-${item.name}`}>
+                    <td>{item.name}</td>
+                    <td>
+                      <button onClick={() => updateCartQty(item.id, Math.max(1, item.quantity - 1))}>−</button>
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) =>
+                          updateCartQty(item.id, Math.max(1, parseInt(e.target.value) || 1))
+                        }
+                        style={{ width: '50px', textAlign: 'center' }}
+                      />
+                      <button onClick={() => updateCartQty(item.id, item.quantity + 1)}>+</button>
+                    </td>
+                    <td>₱{parseFloat(item.price).toFixed(2)}</td>
+                    <td>₱{(item.quantity * parseFloat(item.price)).toFixed(2)}</td>
+                    <td>
+                      <button onClick={() => removeFromCart(item.id)}>Remove</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <h3 style={{ marginTop: '1rem' }}>
+              Total: ₱{cart.reduce((sum, item) => sum + item.quantity * parseFloat(item.price), 0).toFixed(2)}
+            </h3>
+            <button onClick={handleCheckout}>✅ Checkout</button>
+          </>
+        )
       ) : (
         <>
-          <table style={{ width: '100%', marginTop: '1rem' }}>
+          <h2>🧾 Receipt</h2>
+          <p><strong>Order No:</strong> #{receiptData.orderNo}</p>
+          <table style={{ width: '100%', fontFamily: 'monospace', marginTop: '1rem' }}>
             <thead>
               <tr>
-                <th>Drug</th>
+                <th align="left">Drug</th>
                 <th>Qty</th>
                 <th>Price</th>
-                <th>Total</th>
-                <th>Action</th>
+                <th>Subtotal</th>
               </tr>
             </thead>
             <tbody>
-              {cart.map(item => (
-                <tr key={`${item.id}-${item.name}`}>
+              {receiptData.items.map((item, i) => (
+                <tr key={i}>
                   <td>{item.name}</td>
-                  <td>
-                    <button onClick={() => updateCartQty(item.id, Math.max(1, item.quantity - 1))}>−</button>
-                    <input
-                      type="number"
-                      min="1"
-                      value={item.quantity}
-                      onChange={(e) =>
-                        updateCartQty(item.id, Math.max(1, parseInt(e.target.value) || 1))
-                      }
-                      style={{ width: '50px', textAlign: 'center' }}
-                    />
-                    <button onClick={() => updateCartQty(item.id, item.quantity + 1)}>+</button>
-                  </td>
-                  <td>₱{parseFloat(item.price).toFixed(2)}</td>
-                  <td>₱{(item.quantity * parseFloat(item.price)).toFixed(2)}</td>
-                  <td>
-                    <button onClick={() => removeFromCart(item.id)}>Remove</button>
-                  </td>
+                  <td align="center">{item.quantity}</td>
+                  <td align="right">₱{item.price.toFixed(2)}</td>
+                  <td align="right">₱{item.total.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-
-          <h3 style={{ marginTop: '1rem' }}>Total: ₱{total.toFixed(2)}</h3>
-          <button onClick={checkout}>Checkout</button>
+          <hr />
+          <p style={{ textAlign: 'right', fontWeight: 'bold', fontSize: '18px' }}>
+            Total: ₱{receiptData.total.toFixed(2)}
+          </p>
+          <p style={{ marginTop: '1rem', color: 'green', fontWeight: 'bold' }}>
+            ✔️ Please proceed to the counter to claim your order.
+          </p>
         </>
       )}
     </div>

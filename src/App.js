@@ -6,6 +6,7 @@ import DrugForm from './components/DrugForm';
 import DrugTable from './components/DrugTable';
 import FilterDropdown from './components/FilterDropdown';
 import CartPage from './components/CartPage';
+import AdminLog from './components/AdminLog'; // ✅
 
 const API = 'http://localhost/pharma-backend';
 
@@ -82,7 +83,7 @@ function App() {
     fetch(`${API}/drugs.php`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatedDrug)
+      body: JSON.stringify({ ...updatedDrug, username: user.username })
     }).then(() => {
       setEditingId(null);
       setEditCache({});
@@ -91,9 +92,11 @@ function App() {
   };
 
   const deleteDrug = (id) => {
+    const drug = drugs.find(d => d.id === id);
     fetch(`${API}/drugs.php`, {
       method: 'DELETE',
-      body: `id=${id}`
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `id=${id}&username=${user.username}&drug_name=${encodeURIComponent(drug.name)}&quantity=${drug.quantity}`
     }).then(fetchDrugs);
   };
 
@@ -110,7 +113,7 @@ function App() {
     fetch(`${API}/drugs.php`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newDrug)
+      body: JSON.stringify({ ...newDrug, username: user.username })
     }).then(() => {
       setNewDrug({ name: '', quantity: '', price: '' });
       fetchDrugs();
@@ -152,7 +155,9 @@ function App() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...item,
-            quantity: item.originalQuantity - item.quantity
+            quantity: item.originalQuantity - item.quantity,
+            action: 'BUY',
+            username: user.username
           })
         })
       )
@@ -176,9 +181,16 @@ function App() {
           <>
             <h2>Welcome, {user.username} ({user.role})</h2>
             <button onClick={handleLogout}>Logout</button>
+
             {user.role === 'guest' && (
               <Link to="/cart" style={{ marginLeft: '1rem' }}>
                 🛒 View Cart ({cart.reduce((acc, item) => acc + item.quantity, 0)})
+              </Link>
+            )}
+
+            {user.role === 'admin' && (
+              <Link to="/logs" style={{ marginLeft: '1rem' }}>
+                📋 View Logs
               </Link>
             )}
 
@@ -200,17 +212,17 @@ function App() {
                       setSelectedDrug={setSelectedDrug}
                     />
                     <DrugTable
-                    drugs={filteredDrugs}
-                    user={user}
-                    editingId={editingId}
-                    editCache={editCache}
-                    startEdit={startEdit}
-                    handleEditChange={handleEditChange}
-                    cancelEdit={cancelEdit}
-                    saveEdit={saveEdit}
-                    deleteDrug={deleteDrug}
-                    confirmBuy={confirmBuy} 
-                  />
+                      drugs={filteredDrugs}
+                      user={user}
+                      editingId={editingId}
+                      editCache={editCache}
+                      startEdit={startEdit}
+                      handleEditChange={handleEditChange}
+                      cancelEdit={cancelEdit}
+                      saveEdit={saveEdit}
+                      deleteDrug={deleteDrug}
+                      confirmBuy={confirmBuy}
+                    />
                   </>
                 }
               />
@@ -226,6 +238,7 @@ function App() {
                   />
                 }
               />
+              <Route path="/logs" element={<AdminLog />} />
             </Routes>
           </>
         )}
