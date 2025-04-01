@@ -19,16 +19,13 @@ export default function CartPage({ cart, setCart, updateCartQty, removeFromCart,
       total: cart.reduce((sum, item) => sum + item.quantity * parseFloat(item.price), 0)
     };
 
-    // Call the original backend update logic
     checkout();
-
-    // Store receipt data
     setReceiptData(receipt);
     setShowReceipt(true);
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
+    <div className="cart-box">
       <button onClick={() => navigate('/')}>← Back to Inventory</button>
       <h2>Your Cart</h2>
 
@@ -37,7 +34,7 @@ export default function CartPage({ cart, setCart, updateCartQty, removeFromCart,
           <p>No items in cart.</p>
         ) : (
           <>
-            <table style={{ width: '100%', marginTop: '1rem' }}>
+            <table>
               <thead>
                 <tr>
                   <th>Drug</th>
@@ -52,17 +49,28 @@ export default function CartPage({ cart, setCart, updateCartQty, removeFromCart,
                   <tr key={`${item.id}-${item.name}`}>
                     <td>{item.name}</td>
                     <td>
-                      <button onClick={() => updateCartQty(item.id, Math.max(1, item.quantity - 1))}>−</button>
-                      <input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) =>
-                          updateCartQty(item.id, Math.max(1, parseInt(e.target.value) || 1))
-                        }
-                        style={{ width: '50px', textAlign: 'center' }}
-                      />
-                      <button onClick={() => updateCartQty(item.id, item.quantity + 1)}>+</button>
+                      <div className="qty-buttons">
+                        <button
+                          className="qty-btn"
+                          onClick={() => updateCartQty(item.id, Math.max(1, item.quantity - 1))}
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          min="1"
+                          value={item.quantity}
+                          onChange={(e) =>
+                            updateCartQty(item.id, Math.max(1, parseInt(e.target.value) || 1))
+                          }
+                        />
+                        <button
+                          className="qty-btn"
+                          onClick={() => updateCartQty(item.id, item.quantity + 1)}
+                        >
+                          +
+                        </button>
+                      </div>
                     </td>
                     <td>₱{parseFloat(item.price).toFixed(2)}</td>
                     <td>₱{(item.quantity * parseFloat(item.price)).toFixed(2)}</td>
@@ -74,17 +82,18 @@ export default function CartPage({ cart, setCart, updateCartQty, removeFromCart,
               </tbody>
             </table>
 
-            <h3 style={{ marginTop: '1rem' }}>
+            <h3 className="cart-summary">
               Total: ₱{cart.reduce((sum, item) => sum + item.quantity * parseFloat(item.price), 0).toFixed(2)}
             </h3>
             <button onClick={handleCheckout}>✅ Checkout</button>
           </>
         )
       ) : (
-        <>
+        <div className="receipt">
           <h2>🧾 Receipt</h2>
           <p><strong>Order No:</strong> #{receiptData.orderNo}</p>
-          <table style={{ width: '100%', fontFamily: 'monospace', marginTop: '1rem' }}>
+
+          <table style={{ width: '100%', marginTop: '1rem' }}>
             <thead>
               <tr>
                 <th align="left">Drug</th>
@@ -104,14 +113,15 @@ export default function CartPage({ cart, setCart, updateCartQty, removeFromCart,
               ))}
             </tbody>
           </table>
+
           <hr />
           <p style={{ textAlign: 'right', fontWeight: 'bold', fontSize: '18px' }}>
             Total: ₱{receiptData.total.toFixed(2)}
           </p>
-          <p style={{ marginTop: '1rem', color: 'green', fontWeight: 'bold' }}>
+          <p className="success-message">
             ✔️ Please proceed to the counter to claim your order.
           </p>
-        </>
+        </div>
       )}
     </div>
   );

@@ -1,25 +1,189 @@
+/* === Base === */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
 .App {
-  text-align: center;
+  max-width: 1200px;
+  margin: auto;
   padding: 2rem;
 }
 
-input {
-  margin: 0.5rem;
-  padding: 0.5rem;
+/* === Headers === */
+h2, h3 {
+  margin-top: 0;
+  font-weight: 600;
 }
 
+/* === Buttons === */
 button {
-  padding: 0.5rem 1rem;
-  margin: 0.5rem;
+  padding: 6px 12px;
+  margin: 2px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  background-color: #eee;
+  border-radius: 4px;
+  transition: background 0.2s ease;
 }
 
+button:hover {
+  background-color: #ddd;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* === Inputs === */
+input, select {
+  padding: 5px;
+  margin: 3px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+input[type="number"] {
+  width: 70px;
+  text-align: center;
+}
+
+/* === Table === */
 table {
   width: 100%;
-  margin-top: 2rem;
   border-collapse: collapse;
+  margin-top: 1rem;
+  background-color: white;
+  box-shadow: 0 0 5px rgba(0,0,0,0.05);
 }
 
 th, td {
-  padding: 0.75rem;
-  border: 1px solid #ccc;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+th {
+  background-color: #f1f1f1;
+  font-weight: 600;
+}
+
+/* === Login Form === */
+.login-box {
+  max-width: 400px;
+  margin: 4rem auto;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.login-box h2 {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.login-box input {
+  width: 100%;
+  margin: 0.5rem 0;
+}
+
+.login-box button {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+/* === Drug Form === */
+.drug-form {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+  box-shadow: 0 0 5px rgba(0,0,0,0.05);
+}
+
+.drug-form input {
+  margin-right: 10px;
+}
+
+/* === Cart & Receipt === */
+.cart-box {
+  background-color: white;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  border-radius: 6px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.05);
+}
+
+.cart-summary {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.receipt {
+  background-color: #f8fff3;
+  border-left: 4px solid #4caf50;
+  padding: 1rem;
+  margin-top: 2rem;
+  border-radius: 6px;
+}
+
+.receipt p {
+  margin: 0.3rem 0;
+}
+
+/* === Quantity Buttons === */
+.qty-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qty-btn {
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-weight: bold;
+  line-height: 0;
+}
+
+/* === Admin Logs === */
+.log-positive {
+  color: green;
+  font-weight: bold;
+}
+
+.log-negative {
+  color: red;
+  font-weight: bold;
+}
+
+.log-neutral {
+  color: black;
+}
+
+/* === Navigation Links === */
+.nav-link {
+  margin-left: 1rem;
+  text-decoration: none;
+  color: #333;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .App {
+    padding: 1rem;
+  }
+
+  table, thead, tbody, th, td, tr {
+    font-size: 14px;
+  }
 }

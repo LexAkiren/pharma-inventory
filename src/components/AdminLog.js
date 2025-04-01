@@ -16,7 +16,7 @@ export default function AdminLog() {
     <div style={{ padding: '2rem' }}>
       <button onClick={() => navigate('/')}>← Back to Inventory</button>
       <h3 style={{ marginTop: '1rem' }}>📋 Inventory Activity Log</h3>
-      <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+      <table>
         <thead>
           <tr>
             <th>Timestamp</th>
@@ -36,9 +36,11 @@ export default function AdminLog() {
                 <td>{log.user}</td>
                 <td>{log.action}</td>
                 <td>{log.drug_name}</td>
-                <td style={{
-                  color: log.quantity > 0 ? 'green' : log.quantity < 0 ? 'red' : 'black'
-                }}>
+                <td className={
+                  log.quantity > 0 ? "log-positive" :
+                  log.quantity < 0 ? "log-negative" :
+                  "log-neutral"
+                }>
                   {log.quantity > 0 ? `+${log.quantity}` : log.quantity}
                 </td>
               </tr>
