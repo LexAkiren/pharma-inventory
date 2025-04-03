@@ -24,11 +24,12 @@ export default function AdminLog() {
             <th>Action</th>
             <th>Drug</th>
             <th>Qty</th>
+            <th>Price</th>
           </tr>
         </thead>
         <tbody>
           {logs.length === 0 ? (
-            <tr><td colSpan="5">No activity yet.</td></tr>
+            <tr><td colSpan="6">No activity yet.</td></tr>
           ) : (
             logs.map(log => (
               <tr key={log.id}>
@@ -42,6 +43,15 @@ export default function AdminLog() {
                   "log-neutral"
                 }>
                   {log.quantity > 0 ? `+${log.quantity}` : log.quantity}
+                </td>
+                <td className={
+                  log.price > 0 ? "log-positive" :
+                  log.price < 0 ? "log-negative" :
+                  "log-neutral"
+                }>
+                  {log.price !== null && log.price !== 0
+                    ? `${log.price > 0 ? '+' : ''}₱${parseFloat(log.price).toFixed(2)}`
+                    : "-"}
                 </td>
               </tr>
             ))
