@@ -1,5 +1,15 @@
 import React from 'react';
 
+const categories = [
+  'Pain Relief',
+  'Cold & Flu',
+  'Vitamins',
+  'Digestive Health',
+  'Heart Health',
+  'Asthma',
+  'Diabetes'
+];
+
 export default function DrugForm({ newDrug, handleChange, handleAdd }) {
   return (
     <div className="drug-form">
@@ -26,6 +36,16 @@ export default function DrugForm({ newDrug, handleChange, handleAdd }) {
         value={newDrug.price}
         onChange={handleChange}
       />
+      <select
+        name="category"
+        value={newDrug.category || ''}
+        onChange={handleChange}
+      >
+        <option value="">-- Select Category --</option>
+        {categories.map((cat, idx) => (
+          <option key={idx} value={cat}>{cat}</option>
+        ))}
+      </select>
       <button onClick={handleAdd}>Add Drug</button>
     </div>
   );

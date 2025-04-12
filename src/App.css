@@ -186,4 +186,32 @@ th {
   table, thead, tbody, th, td, tr {
     font-size: 14px;
   }
+
+  .log-positive {
+    color: green;
+    font-weight: bold;
+  }
+  
+  .log-negative {
+    color: red;
+    font-weight: bold;
+  }
+  
+  .log-neutral {
+    color: gray;
+  }
+  
+  .log-positive {
+    color: green;
+    font-weight: bold;
+  }
+  .log-negative {
+    color: red;
+    font-weight: bold;
+  }
+  .log-neutral {
+    color: gray;
+  }
+  
+
 }

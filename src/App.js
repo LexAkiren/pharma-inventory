@@ -5,8 +5,9 @@ import Login from './components/Login';
 import DrugForm from './components/DrugForm';
 import DrugTable from './components/DrugTable';
 import FilterDropdown from './components/FilterDropdown';
+import CategoryDropdown from './components/CategoryDropdown'; // NEW
 import CartPage from './components/CartPage';
-import AdminLog from './components/AdminLog'; // ✅
+import AdminLog from './components/AdminLog';
 
 const API = 'http://localhost/pharma-backend';
 
@@ -20,8 +21,9 @@ function App() {
   const [drugs, setDrugs] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editCache, setEditCache] = useState({});
-  const [newDrug, setNewDrug] = useState({ name: '', quantity: '', price: '' });
+  const [newDrug, setNewDrug] = useState({ name: '', quantity: '', price: '', category: '' });
   const [selectedDrug, setSelectedDrug] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [cart, setCart] = useState([]);
 
   useEffect(() => {
@@ -32,7 +34,10 @@ function App() {
     fetch(`${API}/drugs.php`)
       .then(res => res.json())
       .then(data => {
-        const updated = data.map(d => ({ ...d, originalQuantity: d.quantity }));
+        const updated = data.map(d => ({
+          ...d,
+          originalQuantity: d.quantity
+        }));
         setDrugs(updated);
       })
       .catch(() => alert('Failed to fetch drugs'));
@@ -70,7 +75,15 @@ function App() {
 
   const startEdit = (drug) => {
     setEditingId(drug.id);
-    setEditCache({ [drug.id]: { ...drug } });
+    setEditCache({
+      [drug.id]: {
+        id: drug.id,
+        name: drug.name,
+        quantity: drug.quantity,
+        price: drug.price,
+        category: drug.category || '',
+      }
+    });
   };
 
   const cancelEdit = () => {
@@ -78,18 +91,18 @@ function App() {
     setEditCache({});
   };
 
-  const saveEdit = (id) => {
-    const updatedDrug = editCache[id];
-    fetch(`${API}/drugs.php`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...updatedDrug, username: user.username })
-    }).then(() => {
-      setEditingId(null);
-      setEditCache({});
-      fetchDrugs();
-    });
-  };
+const saveEdit = (id) => {
+  const updatedDrug = editCache[id];
+  fetch(`${API}/drugs.php`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...updatedDrug, username: user.username })
+  }).then(() => {
+    setEditingId(null);
+    setEditCache({});
+    fetchDrugs();
+  });
+};
 
   const deleteDrug = (id) => {
     const drug = drugs.find(d => d.id === id);
@@ -105,7 +118,7 @@ function App() {
   };
 
   const addNewDrug = () => {
-    if (!newDrug.name || !newDrug.quantity || !newDrug.price) {
+    if (!newDrug.name || !newDrug.quantity || !newDrug.price || !newDrug.category) {
       alert('Please fill in all fields');
       return;
     }
@@ -115,7 +128,7 @@ function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...newDrug, username: user.username })
     }).then(() => {
-      setNewDrug({ name: '', quantity: '', price: '' });
+      setNewDrug({ name: '', quantity: '', price: '', category: '' });
       fetchDrugs();
     });
   };
@@ -124,22 +137,48 @@ function App() {
     const drug = drugs.find(d => d.id === drugId);
     if (!drug) return alert("Drug not found.");
 
+    const stock = drug.originalQuantity ?? drug.quantity;
     const existing = cart.find(item => item.id === drug.id);
+
     if (existing) {
+      const totalQty = existing.quantity + quantity;
+
+      if (totalQty > stock) {
+        alert(`Not enough stock available. You can only add ${stock - existing.quantity} more.`);
+        return;
+      }
+
       const updatedCart = cart.map(item =>
         item.id === drug.id
-          ? { ...item, quantity: item.quantity + quantity }
+          ? { ...item, quantity: totalQty }
           : item
       );
       setCart(updatedCart);
     } else {
+      if (quantity > stock) {
+        alert(`Only ${stock} available in stock.`);
+        return;
+      }
+
       setCart([...cart, { ...drug, quantity }]);
     }
   };
 
   const updateCartQty = (id, newQty) => {
+    const drug = drugs.find(d => d.id === id);
+    if (!drug) return;
+
+    const stock = drug.originalQuantity ?? drug.quantity;
+
+    if (newQty > stock) {
+      alert(`Cannot exceed stock. Only ${stock} available.`);
+      return;
+    }
+
     setCart(prev =>
-      prev.map(item => item.id === id ? { ...item, quantity: newQty } : item)
+      prev.map(item =>
+        item.id === id ? { ...item, quantity: newQty } : item
+      )
     );
   };
 
@@ -168,9 +207,10 @@ function App() {
     });
   };
 
-  const filteredDrugs = selectedDrug
-    ? drugs.filter(d => d.name === selectedDrug)
-    : drugs;
+  const filteredDrugs = drugs.filter(d =>
+    (!selectedDrug || d.name === selectedDrug) &&
+    (!selectedCategory || d.category === selectedCategory)
+  );
 
   return (
     <Router>
@@ -210,6 +250,11 @@ function App() {
                       drugs={drugs}
                       selectedDrug={selectedDrug}
                       setSelectedDrug={setSelectedDrug}
+                    />
+                    <CategoryDropdown
+                      drugs={drugs}
+                      selectedCategory={selectedCategory}
+                      setSelectedCategory={setSelectedCategory}
                     />
                     <DrugTable
                       drugs={filteredDrugs}
